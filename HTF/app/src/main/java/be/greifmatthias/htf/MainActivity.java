@@ -25,6 +25,16 @@ import com.auth0.android.management.UsersAPIClient;
 import com.auth0.android.provider.AuthCallback;
 import com.auth0.android.provider.WebAuthProvider;
 import com.auth0.android.result.Credentials;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.here.android.mpa.common.GeoCoordinate;
+import com.here.android.mpa.common.OnEngineInitListener;
+import com.here.android.mpa.mapping.Map;
+import com.here.android.mpa.mapping.MapFragment;
 
 import java.util.List;
 
@@ -44,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
     private RelativeLayout _rlLogin;
     private ListView _lvUsers;
 
+    // map embedded in the map fragment
+    private Map map = null;
+    private MapFragment _frmMap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,15 +69,38 @@ public class MainActivity extends AppCompatActivity {
 //        Get controls
         this._rlLogin = findViewById(R.id.rlLogin);
         this._lvUsers = findViewById(R.id.lvUsers);
+        this._frmMap = (MapFragment) getFragmentManager().findFragmentById(R.id.frmMap);
 
 //        Init auth0
         _auth = new Auth0(this);
+
+//        Init map
+        setupMap();
 
 //        Setup
         _rlLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 login();
+            }
+        });
+    }
+
+    private void setupMap(){
+        this._frmMap.init(new OnEngineInitListener() {
+            @Override
+            public void onEngineInitializationCompleted(OnEngineInitListener.Error error) {
+                if (error == OnEngineInitListener.Error.NONE) {
+                    // retrieve a reference of the map from the map fragment
+                    map = _frmMap.getMap();
+                    // Set the map center to the Vancouver region (no animation)
+                    map.setCenter(new GeoCoordinate(49.196261, -123.004773, 0.0),
+                            Map.Animation.NONE);
+                    // Set the zoom level to the average between min and max
+                    map.setZoomLevel((map.getMaxZoomLevel() + map.getMinZoomLevel()) / 2);
+                } else {
+                    System.out.println("ERROR: Cannot initialize Map Fragment");
+                }
             }
         });
     }

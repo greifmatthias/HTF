@@ -49,6 +49,12 @@
             android:padding="@dimen/padNormal"/>
     </RelativeLayout>
 
+    <fragment
+        class="com.here.android.mpa.mapping.MapFragment"
+        android:id="@+id/frmMap"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
