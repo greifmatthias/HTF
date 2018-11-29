@@ -20,11 +20,9 @@
         <activity android:name=".SupplyAdder"></activity>
 
         <meta-data
-            android:name="com.here.android.maps.appid"
-            android:value="Nz6RPxNnlb18gLioKGnp" />
+            android:name="com.here.android.maps.appid" android:value="Nz6RPxNnlb18gLioKGnp" />
         <meta-data
-            android:name="com.here.android.maps.apptoken"
-            android:value="dzdRqWrHEKqLjI_X3z_68g" />
+            android:name="com.here.android.maps.apptoken" android:value="dzdRqWrHEKqLjI_X3z_68g" />
 
         <activity android:name=".MainActivity">
             <intent-filter>

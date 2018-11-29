@@ -37,7 +37,8 @@
                 android:paddingRight="@dimen/padNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="0"/>
+                android:layout_weight="0"
+                android:visibility="gone"/>
 
         </LinearLayout>
 
@@ -56,17 +57,22 @@
             class="com.here.android.mpa.mapping.MapFragment"
             android:id="@+id/frmMap"
             android:layout_width="match_parent"
-            android:layout_height="500dp"/>
+            android:layout_height="300dp"/>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/llHeader">
 
+            <!--<ListView-->
+                <!--android:id="@+id/lvUsers"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content" />-->
+
             <ListView
-                android:id="@+id/lvUsers"
+                android:id="@+id/lvSupplies"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"></ListView>
 
         </RelativeLayout>
 

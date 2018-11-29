@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <color name="colorAccent">#6200EE</color>
+
     <color name="colorLight">#FFFFFF</color>
     <color name="colorDark">#151515</color>
     <color name="colorDark_mintrans">#0F151515</color>

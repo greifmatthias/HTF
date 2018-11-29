@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="padNormal">27dp</dimen>
+    <dimen name="padSmall">15dp</dimen>
 
     <dimen name="textBigger">25dp</dimen>
 

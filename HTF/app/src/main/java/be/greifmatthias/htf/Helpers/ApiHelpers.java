@@ -1,7 +1,5 @@
 package be.greifmatthias.htf.Helpers;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.MediaType;
@@ -62,7 +60,9 @@ public class ApiHelpers {
             @Override
             public void onFailure(Request request, IOException e) {
                 //show error
-                call.onfinish(gson.fromJson(DataHelper.getInstance().read(DATA_SUPPLIES).get(0), User[].class));
+                try {
+                    call.onfinish(gson.fromJson(DataHelper.getInstance().read(DATA_USERS).get(0), User[].class));
+                }catch (Exception e1){}
             }
 
             @Override
@@ -83,7 +83,9 @@ public class ApiHelpers {
 
                 } else {
                     //API call failed. Check http error code and message
-                    call.onfinish(gson.fromJson(DataHelper.getInstance().read(DATA_USERS).get(0), User[].class));
+                    try {
+                        call.onfinish(gson.fromJson(DataHelper.getInstance().read(DATA_USERS).get(0), User[].class));
+                    }catch (Exception e){}
                 }
             }
         });
@@ -111,7 +113,9 @@ public class ApiHelpers {
             @Override
             public void onFailure(Request request, IOException e) {
                 //show error
-                call.onfinish(gson.fromJson(DataHelper.getInstance().read(DATA_SUPPLIES).get(0), Supply[].class));
+                try {
+                    call.onfinish(gson.fromJson(DataHelper.getInstance().read(DATA_SUPPLIES).get(0), Supply[].class));
+                }catch (Exception e2){ }
             }
 
             @Override
@@ -133,7 +137,10 @@ public class ApiHelpers {
                 } else {
                     //API call failed. Check http error code and message
 
-                    call.onfinish(gson.fromJson(DataHelper.getInstance().read(DATA_SUPPLIES).get(0), Supply[].class));
+                    try {
+                        call.onfinish(gson.fromJson(DataHelper.getInstance().read(DATA_SUPPLIES).get(0), Supply[].class));
+                    }catch (Exception e){ }
+
                 }
             }
         });

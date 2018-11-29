@@ -1,8 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SupplyAdder">
+    tools:context=".SupplyAdder"
+    android:background="@color/colorLight">
 
-</android.support.constraint.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/llHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1"
+            android:background="@drawable/gradient_bottomtop"
+            android:backgroundTint="@color/colorDark_mintrans">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add a new supply"
+                android:padding="@dimen/padNormal"
+                android:textStyle="bold"
+                android:textSize="@dimen/textBigger"
+                android:textColor="@color/colorDark"
+                android:layout_weight="1"/>
+
+
+            <ImageView
+                android:id="@+id/ivMore"
+                android:src="@drawable/ic_round_menu_24px"
+                android:paddingLeft="@dimen/padNormal"
+                android:paddingRight="@dimen/padNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/tvName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name"
+            android:layout_margin="@dimen/padNormal"/>
+
+        <EditText
+            android:id="@+id/etLat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Latitude"
+            android:layout_marginLeft="@dimen/padNormal"
+            android:layout_marginRight="@dimen/padNormal"
+            android:layout_marginBottom="@dimen/padSmall"/>
+
+        <EditText
+            android:id="@+id/etLng"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Longitude"
+            android:layout_marginLeft="@dimen/padNormal"
+            android:layout_marginRight="@dimen/padNormal"/>
+
+        <RelativeLayout
+            android:id="@+id/rlImageSelector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padNormal"
+            android:layout_margin="@dimen/padNormal"
+            android:background="@color/colorDark_mintrans">
+
+            <TextView
+                android:text="Pick your nextgen image pls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rlSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:layout_alignParentBottom="true">
+
+        <TextView
+            android:text="Submit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padNormal"
+            android:textColor="@color/colorLight"
+            android:textAlignment="center"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

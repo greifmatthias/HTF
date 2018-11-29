@@ -5,6 +5,8 @@ import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.biometrics.BiometricPrompt;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.os.CancellationSignal;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +48,9 @@ import be.greifmatthias.htf.Models.User;
 
 public class MainActivity extends AppCompatActivity {
 
+    private boolean isinlogin;
+    private boolean isinlock;
+
     // Auth
     private Auth0 _auth;
 
@@ -54,8 +60,11 @@ public class MainActivity extends AppCompatActivity {
 //    Controls
     private ImageView _ivMore;
     private RelativeLayout _rlLogin;
-    private ListView _lvUsers;
+    private ListView _lvSupplies;
     private RelativeLayout _rlOverlay;
+
+    private BiometricPrompt p;
+    private BiometricPrompt.AuthenticationCallback callback;
 
     // map embedded in the map fragment
     private Map map = null;
@@ -75,18 +84,21 @@ public class MainActivity extends AppCompatActivity {
 //        Get controls
         this._rlLogin = findViewById(R.id.rlLogin);
         this._ivMore = findViewById(R.id.ivMore);
-        this._lvUsers = findViewById(R.id.lvUsers);
+        this._lvSupplies = findViewById(R.id.lvSupplies);
         this._frmMap = (MapFragment) getFragmentManager().findFragmentById(R.id.frmMap);
         this._rlOverlay = findViewById(R.id.rlOverlay);
 
 //        Init auth0
         _auth = new Auth0(this);
 
+        isinlock = false;
+        isinlogin = false;
 
 //        Setup
         _rlLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                isinlogin = true;
                 login();
             }
         });
@@ -100,14 +112,27 @@ public class MainActivity extends AppCompatActivity {
         });
 
         _apihelper = ApiHelpers.getInstance();
-        showSupplies();
+        setupFingerbox();
+
     }
 
-    private void showFingerbox(){
-        final BiometricPrompt.AuthenticationCallback callback = new BiometricPrompt.AuthenticationCallback() {
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        showSupplies();
+        setupMap();
+
+        showFingerbox();
+    }
+
+    private void setupFingerbox(){
+        callback = new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
+
+                setFingerHandler(1000);
 
                 Log.d("local", "error");
             }
@@ -125,20 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
                 lock(false);
 
-                final Handler h = new Handler();
-                h.postDelayed(new Runnable()
-                {
-                    private long time = 0;
-
-                    @Override
-                    public void run()
-                    {
-                        time += 1000;
-                        Log.d("TimerExample", "Going for... " + time);
-
-                        lock(true);
-                    }
-                }, 10000); // 1 second delay (takes millis)
+                setFingerHandler(20000);
 
                 Log.d("local", "succeed");
             }
@@ -147,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
 
-                Log.d("local", "failed");
+                setFingerHandler(1000);
             }
         };
 
@@ -158,12 +170,28 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        new BiometricPrompt.Builder(this)
+        p = new BiometricPrompt.Builder(this)
                 .setTitle("Hi agent")
                 .setSubtitle("Prove it is you")
                 .setDescription("Provide us your finger")
                 .setNegativeButton("dont", this.getMainExecutor(), listener)
-                .build().authenticate(new CancellationSignal(), this.getMainExecutor(), callback);
+                .build();
+    }
+    private void showFingerbox(){
+        isinlock = true;
+        p.authenticate(new CancellationSignal(), this.getMainExecutor(), callback);
+    }
+
+    private void setFingerHandler(int delay){
+        final Handler h = new Handler();
+        h.postDelayed(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                showFingerbox();
+            }
+        }, delay);
     }
 
     private void setupMap(){
@@ -209,6 +237,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void lock(boolean locked){
+        isinlock = locked;
+
         if(locked){
             runOnUiThread(new Runnable() {
               @Override
@@ -246,10 +276,11 @@ public class MainActivity extends AppCompatActivity {
                         _apihelper = ApiHelpers.getInstance(credentials.getAccessToken());
 
                         checkLogin(true);
+
                         //        Init map
                         setupMap();
 
-                        lock(true);
+                        lock(false);
 
                         showUsers();
                         showSupplies();
@@ -263,8 +294,10 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 if (logedin) {
                     _rlLogin.setVisibility(View.GONE);
+                    _ivMore.setVisibility(View.VISIBLE);
                 } else {
                     _rlLogin.setVisibility(View.VISIBLE);
+                    _ivMore.setVisibility(View.GONE);
                 }
             }
         });
@@ -277,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        _lvUsers.setAdapter(new UsersAdapter(getBaseContext(), users));
+                        //_lvUsers.setAdapter(new UsersAdapter(getBaseContext(), users));
                     }
                 });
             }
@@ -287,10 +320,13 @@ public class MainActivity extends AppCompatActivity {
     private void showSupplies(){
         _apihelper.getSupplies(new ApiHelpers.suppliescallback() {
             @Override
-            public void onfinish(Supply[] supplies) {
-                for(int i = 0; i < supplies.length; i++){
-                    Log.d("supplies", supplies[i].getName());
-                }
+            public void onfinish(final Supply[] supplies) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        _lvSupplies.setAdapter(new SuppliesAdapter(getBaseContext(), supplies));
+                    }
+                });
             }
         });
     }
@@ -341,6 +377,64 @@ public class MainActivity extends AppCompatActivity {
         class ViewHolder {
             TextView tvId;
             TextView tvMail ;
+
+        }
+
+    }
+
+    public class SuppliesAdapter extends BaseAdapter {
+
+        private LayoutInflater myInflater;
+        private Supply[] _supplies;
+
+        public SuppliesAdapter(Context context, Supply[] supplies) {
+            myInflater = LayoutInflater.from(context);
+            this._supplies = supplies;
+        }
+
+        @Override
+        public int getCount() {
+            return _supplies.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder;
+
+            convertView = myInflater.inflate(R.layout.listitem_supply, null);
+            holder = new ViewHolder();
+
+            holder.tvName = convertView.findViewById(R.id.tvName);
+            holder.ivIcon = convertView.findViewById(R.id.ivIcon);
+
+            convertView.setTag(holder);
+
+            holder.tvName.setText(_supplies[position].getName());
+
+            try {
+                byte[] decodedString = Base64.decode(_supplies[position].getImage(), Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                holder.ivIcon.setImageBitmap(decodedByte);
+            }catch (Exception ex){
+                holder.ivIcon.setImageResource(R.drawable.marker);
+            }
+
+            return convertView;
+        }
+
+        class ViewHolder {
+            TextView tvName;
+            ImageView ivIcon ;
 
         }
 
