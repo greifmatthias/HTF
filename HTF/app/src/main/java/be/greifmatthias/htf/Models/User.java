@@ -1,8 +1,8 @@
 package be.greifmatthias.htf.Models;
 
 public class User {
-    private String email;
-    private String user_id;
+    public String email;
+    public String user_id;
 
     public String getEmail() {
         return email;
@@ -12,11 +12,11 @@ public class User {
         this.email = email;
     }
 
-    public String getId() {
+    public String getUser_id() {
         return user_id;
     }
 
-    public void setId(String id) {
+    public void setUser_id(String user_id) {
         this.user_id = user_id;
     }
 }

@@ -2,6 +2,7 @@ package be.greifmatthias.htf;
 
 import android.app.Dialog;
 import android.arch.lifecycle.ViewModel;
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +11,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.auth0.android.Auth0;
@@ -22,12 +26,6 @@ import com.auth0.android.provider.AuthCallback;
 import com.auth0.android.provider.WebAuthProvider;
 import com.auth0.android.result.Credentials;
 
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
-import java.io.IOException;
 import java.util.List;
 
 import be.greifmatthias.htf.Helpers.ApiHelpers;
@@ -43,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private ApiHelpers _apihelper;
 
 //    Controls
-    private RecyclerView _rvUsers;
+    private RelativeLayout _rlLogin;
+    private ListView _lvUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,13 +53,19 @@ public class MainActivity extends AppCompatActivity {
         ThemeHelper.setStatusbarWhite(getWindow(), true);
 
 //        Get controls
-        this._rvUsers = findViewById(R.id.rvUsers);
+        this._rlLogin = findViewById(R.id.rlLogin);
+        this._lvUsers = findViewById(R.id.lvUsers);
 
 //        Init auth0
         _auth = new Auth0(this);
 
-//        Force to login
-        login();
+//        Setup
+        _rlLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                login();
+            }
+        });
     }
 
     private void login() {
@@ -74,59 +79,94 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(AuthenticationException exception) {
                         // Show error to user
-
-                        Log.d("login", exception.getDescription());
                     }
 
                     @Override
                     public void onSuccess(@NonNull Credentials credentials) {
                         _apihelper = ApiHelpers.getInstance(credentials.getAccessToken());
+
+                        checkLogin(true);
+
                         showUsers();
                     }
                 });
     }
 
-    private void showUsers(){
-        this._rvUsers.setAdapter(new UsersAdapter(_apihelper.getUsers()));
+    private void checkLogin(final boolean logedin){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (logedin) {
+                    _rlLogin.setVisibility(View.GONE);
+                } else {
+                    _rlLogin.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
-    public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> {
-        private List<User> _users;
+    private void showUsers(){
+        _apihelper.getUsers(new ApiHelpers.usercallback() {
+            @Override
+            public void onfinish(final User[] users) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        _lvUsers.setAdapter(new UsersAdapter(getBaseContext(), users));
+                    }
+                });
+            }
+        });
+    }
 
-        public UsersAdapter(List<User> users) {
+    public class UsersAdapter extends BaseAdapter {
+
+        private LayoutInflater myInflater;
+        private User[] _users;
+
+        public UsersAdapter(Context context, User[] users) {
+            myInflater = LayoutInflater.from(context);
             this._users = users;
         }
 
-        @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.listitem_user, parent, false);
-            return new ViewHolder(v);
+        @Override
+        public int getCount() {
+            return _users.length;
         }
 
-        @Override public void onBindViewHolder(ViewHolder holder, int position) {
-            // Get view
-            User item = this._users.get(position);
-
-            // Set content
-            holder.tvId.setText(item.getId());
-            holder.tvMail.setText(item.getEmail());
-
-            holder.itemView.setTag(item);
+        @Override
+        public Object getItem(int position) {
+            return null;
         }
 
-        @Override public int getItemCount() {
-            return this._users.size();
+        @Override
+        public long getItemId(int position) {
+            return 0;
         }
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public TextView tvId;
-            public TextView tvMail;
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder;
 
-            public ViewHolder(View itemView) {
-                super(itemView);
+            convertView = myInflater.inflate(R.layout.listitem_user, null);
+            holder = new ViewHolder();
 
-                this.tvId = itemView.findViewById(R.id.tvId);
-                this.tvMail = itemView.findViewById(R.id.tvMail);
-            }
+            holder.tvId = convertView.findViewById(R.id.tvId);
+            holder.tvMail = convertView.findViewById(R.id.tvMail);
+
+            convertView.setTag(holder);
+
+            holder.tvId.setText(_users[position].getUser_id());
+            holder.tvMail.setText(_users[position].getEmail());
+
+            return convertView;
         }
+
+        class ViewHolder {
+            TextView tvId;
+            TextView tvMail ;
+
+        }
+
     }
 }
