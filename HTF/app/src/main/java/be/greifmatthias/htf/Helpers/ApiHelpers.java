@@ -2,12 +2,15 @@ package be.greifmatthias.htf.Helpers;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,11 +37,11 @@ public class ApiHelpers {
         return _THIS;
     }
 
-    public List<User> getUsers(){
+    public void getUsers(final usercallback call){
 
-        List<User> users = new ArrayList<>();
+        final Gson gson = new Gson();
 
-        OkHttpClient client = new OkHttpClient();
+        final OkHttpClient client = new OkHttpClient();
         final Request request = new Request.Builder()
                 .get()
                 .url("https://htf2018.now.sh/users")
@@ -55,8 +58,12 @@ public class ApiHelpers {
                 if (response.isSuccessful()) {
                     //API call success
 
-                    Log.d("getuser", response.body().string());
+                    String resp = response.body().string();
 
+                    Log.d("getuser", resp);
+                    User[] users = gson.fromJson(resp, User[].class);
+
+                    call.onfinish(users);
 
                 } else {
                     //API call failed. Check http error code and message
@@ -64,8 +71,10 @@ public class ApiHelpers {
                 }
             }
         });
+    }
 
-        return users;
+    public interface usercallback{
+        void onfinish(User[] users);
     }
 
     private void getSupplies(){

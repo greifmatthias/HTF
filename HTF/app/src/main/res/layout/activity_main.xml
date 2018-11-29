@@ -39,12 +39,29 @@
     </LinearLayout>
 
     <RelativeLayout
+        android:id="@+id/rlLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="You are not loged in"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padNormal"/>
+    </RelativeLayout>
+
+    <fragment
+        class="com.here.android.mpa.mapping.MapFragment"
+        android:id="@+id/frmMap"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"/>
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/llHeader">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rvUsers"
+        <ListView
+            android:id="@+id/lvUsers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
