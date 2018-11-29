@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="padInsane">100dp</dimen>
+    <dimen name="padBig">40dp</dimen>
+    <dimen name="padBigger">32dp</dimen>
+    <dimen name="padNormal">27dp</dimen>
+    <dimen name="padSmaller">16dp</dimen>
+    <dimen name="padSmall">8dp</dimen>
+    <dimen name="padExtrasmall">5dp</dimen>
+    <dimen name="padThin">2dp</dimen>
+    <dimen name="padLine">1dp</dimen>
+
+    <dimen name="textIncredible">55dp</dimen>
+    <dimen name="textInsane">40dp</dimen>
+    <dimen name="textExtrabig">30dp</dimen>
+    <dimen name="textBigger">25dp</dimen>
+    <dimen name="textBig">20dp</dimen>
+    <dimen name="textNormal">17dp</dimen>
+    <dimen name="textSmall">12dp</dimen>
+
+    <dimen name="textSep">5dp</dimen>
+</resources>
