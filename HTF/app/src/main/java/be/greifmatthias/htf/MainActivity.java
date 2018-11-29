@@ -1,9 +1,20 @@
 package be.greifmatthias.htf;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Dialog;
+import android.app.KeyguardManager;
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.hardware.biometrics.BiometricPrompt;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.os.CancellationSignal;
+import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +26,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.auth0.android.Auth0;
 import com.auth0.android.authentication.AuthenticationAPIClient;
@@ -54,10 +66,15 @@ public class MainActivity extends AppCompatActivity {
 //    Controls
     private RelativeLayout _rlLogin;
     private ListView _lvUsers;
+    private RelativeLayout _rlOverlay;
 
     // map embedded in the map fragment
     private Map map = null;
     private MapFragment _frmMap;
+
+//    Auth local
+    private KeyguardManager _keymanager;
+    private FingerprintManager _fingermanager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +88,16 @@ public class MainActivity extends AppCompatActivity {
         this._rlLogin = findViewById(R.id.rlLogin);
         this._lvUsers = findViewById(R.id.lvUsers);
         this._frmMap = (MapFragment) getFragmentManager().findFragmentById(R.id.frmMap);
+        this._rlOverlay = findViewById(R.id.rlOverlay);
 
 //        Init auth0
         _auth = new Auth0(this);
 
 //        Init map
         setupMap();
+
+//        Setup fingerprint
+        _keymanager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
 
 //        Setup
         _rlLogin.setOnClickListener(new View.OnClickListener() {
@@ -85,6 +106,69 @@ public class MainActivity extends AppCompatActivity {
                 login();
             }
         });
+    }
+
+    private void showFingerbox(){
+        final BiometricPrompt.AuthenticationCallback callback = new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+
+                Log.d("local", "error");
+            }
+
+            @Override
+            public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+                super.onAuthenticationHelp(helpCode, helpString);
+
+                Log.d("local", "help");
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+
+                lock(false);
+
+                final Handler h = new Handler();
+                h.postDelayed(new Runnable()
+                {
+                    private long time = 0;
+
+                    @Override
+                    public void run()
+                    {
+                        time += 1000;
+                        Log.d("TimerExample", "Going for... " + time);
+
+                        lock(true);
+                    }
+                }, 10000); // 1 second delay (takes millis)
+
+                Log.d("local", "succeed");
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+
+                Log.d("local", "failed");
+            }
+        };
+
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                callback.onAuthenticationFailed();
+            }
+        };
+
+        new BiometricPrompt.Builder(this)
+                .setTitle("Hi agent")
+                .setSubtitle("Prove it is you")
+                .setDescription("Provide us your finger")
+                .setNegativeButton("dont", this.getMainExecutor(), listener)
+                .build().authenticate(new CancellationSignal(), this.getMainExecutor(), callback);
     }
 
     private void setupMap(){
@@ -106,6 +190,26 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void lock(boolean locked){
+        if(locked){
+            runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                  _rlOverlay.setVisibility(View.VISIBLE);
+              }
+          });
+
+            showFingerbox();
+        }else{
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    _rlOverlay.setVisibility(View.GONE);
+                }
+            });
+        }
+    }
+
     private void login() {
         WebAuthProvider.init(this._auth).withScheme("demo").withAudience(String.format("https://%s", getString(R.string.com_auth0_audiance)))
                 .start(MainActivity.this, new AuthCallback() {
@@ -124,6 +228,8 @@ public class MainActivity extends AppCompatActivity {
                         _apihelper = ApiHelpers.getInstance(credentials.getAccessToken());
 
                         checkLogin(true);
+
+                        lock(true);
 
                         showUsers();
                         showSupplies();

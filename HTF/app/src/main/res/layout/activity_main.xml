@@ -1,70 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:orientation="vertical"
     android:background="@color/colorLight">
 
     <LinearLayout
-        android:id="@+id/llHeader"
+        android:id="@+id/dContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:background="@drawable/gradient_bottomtop"
-        android:backgroundTint="@color/colorDark_mintrans">
+        android:orientation="vertical">
 
-        <TextView
+        <LinearLayout
+            android:id="@+id/llHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hi there"
-            android:padding="@dimen/padNormal"
-            android:textStyle="bold"
-            android:textSize="@dimen/textBigger"
-            android:textColor="@color/colorDark"
-            android:layout_weight="1"/>
+            android:weightSum="1"
+            android:background="@drawable/gradient_bottomtop"
+            android:backgroundTint="@color/colorDark_mintrans">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hi there"
+                android:padding="@dimen/padNormal"
+                android:textStyle="bold"
+                android:textSize="@dimen/textBigger"
+                android:textColor="@color/colorDark"
+                android:layout_weight="1"/>
 
 
-        <ImageView
-            android:id="@+id/ivMore"
-            android:src="@drawable/ic_round_menu_24px"
-            android:paddingLeft="@dimen/padNormal"
-            android:paddingRight="@dimen/padNormal"
-            android:layout_width="wrap_content"
+            <ImageView
+                android:id="@+id/ivMore"
+                android:src="@drawable/ic_round_menu_24px"
+                android:paddingLeft="@dimen/padNormal"
+                android:paddingRight="@dimen/padNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0"/>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="You are not loged in"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padNormal"/>
+        </RelativeLayout>
+
+        <fragment
+            class="com.here.android.mpa.mapping.MapFragment"
+            android:id="@+id/frmMap"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0"/>
+            android:layout_below="@id/llHeader">
+
+            <ListView
+                android:id="@+id/lvUsers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 
     <RelativeLayout
-        android:id="@+id/rlLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:text="You are not loged in"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/padNormal"/>
-    </RelativeLayout>
-
-    <fragment
-        class="com.here.android.mpa.mapping.MapFragment"
-        android:id="@+id/frmMap"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"/>
-
-    <RelativeLayout
+        android:id="@+id/rlOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/llHeader">
+        android:background="@color/colorLight"
+        android:visibility="gone"></RelativeLayout>
 
-        <ListView
-            android:id="@+id/lvUsers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </RelativeLayout>
-
-</LinearLayout>
+</RelativeLayout>
