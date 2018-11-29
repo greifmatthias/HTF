@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">HTF</string>
+
+    <string name="com_auth0_client_id">km5vlAJ8kgQAtbucvAyzUgkakxRj5ajv</string>
+    <string name="com_auth0_domain">hackthefuturemobile.eu.auth0.com</string>
+    <string name="com_auth0_audiance">hackthefuturemobilechallengecozmos.com</string>
 </resources>
