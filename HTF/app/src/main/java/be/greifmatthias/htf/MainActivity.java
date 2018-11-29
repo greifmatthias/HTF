@@ -1,48 +1,32 @@
 package be.greifmatthias.htf;
 
-import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.app.KeyguardManager;
-import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.pm.PackageManager;
+import android.content.Intent;
 import android.hardware.biometrics.BiometricPrompt;
 import android.hardware.fingerprint.FingerprintManager;
-import android.os.Build;
+import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.auth0.android.Auth0;
-import com.auth0.android.authentication.AuthenticationAPIClient;
 import com.auth0.android.authentication.AuthenticationException;
-import com.auth0.android.callback.BaseCallback;
-import com.auth0.android.management.ManagementException;
-import com.auth0.android.management.UsersAPIClient;
 import com.auth0.android.provider.AuthCallback;
 import com.auth0.android.provider.WebAuthProvider;
 import com.auth0.android.result.Credentials;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.here.android.mpa.common.GeoCoordinate;
 import com.here.android.mpa.common.Image;
 import com.here.android.mpa.common.OnEngineInitListener;
@@ -54,6 +38,7 @@ import java.io.IOException;
 import java.util.List;
 
 import be.greifmatthias.htf.Helpers.ApiHelpers;
+import be.greifmatthias.htf.Helpers.DataHelper;
 import be.greifmatthias.htf.Helpers.ThemeHelper;
 import be.greifmatthias.htf.Models.Supply;
 import be.greifmatthias.htf.Models.User;
@@ -67,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private ApiHelpers _apihelper;
 
 //    Controls
+    private ImageView _ivMore;
     private RelativeLayout _rlLogin;
     private ListView _lvUsers;
     private RelativeLayout _rlOverlay;
@@ -74,10 +60,6 @@ public class MainActivity extends AppCompatActivity {
     // map embedded in the map fragment
     private Map map = null;
     private MapFragment _frmMap;
-
-//    Auth local
-    private KeyguardManager _keymanager;
-    private FingerprintManager _fingermanager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +69,12 @@ public class MainActivity extends AppCompatActivity {
 //        Load theme
         ThemeHelper.setStatusbarWhite(getWindow(), true);
 
+//        Init helpers
+        DataHelper.getInstance(this);
+
 //        Get controls
         this._rlLogin = findViewById(R.id.rlLogin);
+        this._ivMore = findViewById(R.id.ivMore);
         this._lvUsers = findViewById(R.id.lvUsers);
         this._frmMap = (MapFragment) getFragmentManager().findFragmentById(R.id.frmMap);
         this._rlOverlay = findViewById(R.id.rlOverlay);
@@ -97,10 +83,6 @@ public class MainActivity extends AppCompatActivity {
         _auth = new Auth0(this);
 
 
-
-//        Setup fingerprint
-        _keymanager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
-
 //        Setup
         _rlLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,6 +90,17 @@ public class MainActivity extends AppCompatActivity {
                 login();
             }
         });
+
+        _ivMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), SupplyAdder.class);
+                startActivity(intent);
+            }
+        });
+
+        _apihelper = ApiHelpers.getInstance();
+        showSupplies();
     }
 
     private void showFingerbox(){
