@@ -180,8 +180,8 @@ public class MainActivity extends AppCompatActivity {
                 if (error == OnEngineInitListener.Error.NONE) {
                     // retrieve a reference of the map from the map fragment
                     map = _frmMap.getMap();
-                    // Set the map center to the Vancouver region (no animation)
-                    map.setCenter(new GeoCoordinate(49.196261, -123.004773, 0.0),
+                    // Set the map center to belgium
+                    map.setCenter(new GeoCoordinate(50.5733473, 4.5534897, 8),
                             Map.Animation.NONE);
                     // Set the zoom level to the average between min and max
                     map.setZoomLevel((map.getMaxZoomLevel() + map.getMinZoomLevel()) / 2);
