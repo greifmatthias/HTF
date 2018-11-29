@@ -32,10 +32,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.here.android.mpa.common.GeoCoordinate;
+import com.here.android.mpa.common.Image;
 import com.here.android.mpa.common.OnEngineInitListener;
 import com.here.android.mpa.mapping.Map;
 import com.here.android.mpa.mapping.MapFragment;
+import com.here.android.mpa.mapping.MapMarker;
 
+import java.io.IOException;
 import java.util.List;
 
 import be.greifmatthias.htf.Helpers.ApiHelpers;
@@ -75,8 +78,7 @@ public class MainActivity extends AppCompatActivity {
 //        Init auth0
         _auth = new Auth0(this);
 
-//        Init map
-        setupMap();
+
 
 //        Setup
         _rlLogin.setOnClickListener(new View.OnClickListener() {
@@ -99,6 +101,29 @@ public class MainActivity extends AppCompatActivity {
                             Map.Animation.NONE);
                     // Set the zoom level to the average between min and max
                     map.setZoomLevel((map.getMaxZoomLevel() + map.getMinZoomLevel()) / 2);
+
+                    _apihelper.getSupplies(new ApiHelpers.suppliescallback() {
+                        @Override
+                        public void onfinish(Supply[] supplies) {
+                            for(int i = 0; i < supplies.length; i++){
+                                double lat = supplies[i].lat;
+                                double lng = supplies[i].lng;
+                                GeoCoordinate coords = new GeoCoordinate(lat,lng);
+
+                                Image img = new Image();
+                                try {
+                                    img.setImageResource(R.drawable.marker);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                MapMarker marker = new MapMarker(coords,img);
+                                map.addMapObject(marker);
+
+                            }
+                        }
+                    });
+
+
                 } else {
                     System.out.println("ERROR: Cannot initialize Map Fragment");
                 }
@@ -124,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
                         _apihelper = ApiHelpers.getInstance(credentials.getAccessToken());
 
                         checkLogin(true);
+                        //        Init map
+                        setupMap();
 
                         showUsers();
                         showSupplies();
