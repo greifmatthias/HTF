@@ -1,19 +1,19 @@
 package be.greifmatthias.htf.Models;
 
 public class Supply {
-    private int _id;
-    private String name;
-    private double lat;
-    private double lon;
-    private String image;
-    private String author;
-    private String destined_user;
+    public String _id;
+    public String name;
+    public double lat;
+    public double lng;
+    public String image;
+    public String author;
+    public String destined_user;
 
-    public int getId() {
+    public String get_id() {
         return _id;
     }
 
-    public void setId(int _id) {
+    public void set_id(String _id) {
         this._id = _id;
     }
 
@@ -34,11 +34,11 @@ public class Supply {
     }
 
     public double getLon() {
-        return lon;
+        return lng;
     }
 
     public void setLon(double lon) {
-        this.lon = lon;
+        this.lng = lon;
     }
 
     public String getImage() {

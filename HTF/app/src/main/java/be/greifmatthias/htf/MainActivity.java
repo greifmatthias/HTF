@@ -40,6 +40,7 @@ import java.util.List;
 
 import be.greifmatthias.htf.Helpers.ApiHelpers;
 import be.greifmatthias.htf.Helpers.ThemeHelper;
+import be.greifmatthias.htf.Models.Supply;
 import be.greifmatthias.htf.Models.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -125,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
                         checkLogin(true);
 
                         showUsers();
+                        showSupplies();
                     }
                 });
     }
@@ -152,6 +154,17 @@ public class MainActivity extends AppCompatActivity {
                         _lvUsers.setAdapter(new UsersAdapter(getBaseContext(), users));
                     }
                 });
+            }
+        });
+    }
+
+    private void showSupplies(){
+        _apihelper.getSupplies(new ApiHelpers.suppliescallback() {
+            @Override
+            public void onfinish(Supply[] supplies) {
+                for(int i = 0; i < supplies.length; i++){
+                    Log.d("supplies", supplies[i].getName());
+                }
             }
         });
     }

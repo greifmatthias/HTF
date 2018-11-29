@@ -14,6 +14,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import be.greifmatthias.htf.Models.Supply;
 import be.greifmatthias.htf.Models.User;
 
 public class ApiHelpers {
@@ -77,11 +78,18 @@ public class ApiHelpers {
         void onfinish(User[] users);
     }
 
-    private void getSupplies(){
+    public interface suppliescallback{
+        void onfinish(Supply[] supplies);
+    }
+
+    public void getSupplies(final suppliescallback call){
+
+        final Gson gson = new Gson();
+
         OkHttpClient client = new OkHttpClient();
         final Request request = new Request.Builder()
                 .get()
-                .url("https://htf2018.now.sh/users")
+                .url("https://htf2018.now.sh/supplies")
                 .addHeader("Authorization", "Bearer " + this._token).build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -95,10 +103,16 @@ public class ApiHelpers {
                 if (response.isSuccessful()) {
                     //API call success
 
-                    Log.d("getuser", response.body().string());
+                    String resp = response.body().string();
+
+                    Log.d("getsupplies", resp);
+                    Supply[] supplies = gson.fromJson(resp, Supply[].class);
+
+                    call.onfinish(supplies);
+
                 } else {
                     //API call failed. Check http error code and message
-                    Log.d("getusers", "failed");
+                    Log.d("getsupplies", "failed");
                 }
             }
         });
