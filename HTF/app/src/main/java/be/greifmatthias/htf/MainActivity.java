@@ -1,19 +1,17 @@
 package be.greifmatthias.htf;
 
 import android.app.Dialog;
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.biometrics.BiometricPrompt;
-import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,7 +36,6 @@ import com.here.android.mpa.mapping.MapFragment;
 import com.here.android.mpa.mapping.MapMarker;
 
 import java.io.IOException;
-import java.util.List;
 
 import be.greifmatthias.htf.Helpers.ApiHelpers;
 import be.greifmatthias.htf.Helpers.DataHelper;
